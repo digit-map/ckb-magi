@@ -23,9 +23,11 @@
     "@nervosnetwork/ckb-sdk-core": "0.17.1",
     "@nestjs/common": "6.5.3",
     "@nestjs/core": "6.5.3",
+    "@nestjs/mongoose": "^6.1.2",
     "@nestjs/platform-express": "6.5.3",
     "class-transformer": "0.2.3",
     "class-validator": "0.9.1",
+    "mongoose": "^5.6.9",
     "reflect-metadata": "0.1.13",
     "rimraf": "2.6.3",
     "rxjs": "6.5.2"
