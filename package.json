@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nervosnetwork/ckb-sdk-core": "0.17.1",
+    "@nervosnetwork/ckb-sdk-core": "0.18.0",
     "@nestjs/common": "6.5.3",
     "@nestjs/core": "6.5.3",
     "@nestjs/mongoose": "6.1.2",
