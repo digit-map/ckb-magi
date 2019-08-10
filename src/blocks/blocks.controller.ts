@@ -4,6 +4,7 @@ import {
   Body,
   Get,
   Param,
+  Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { BlocksService } from './blocks.service';
@@ -17,8 +18,14 @@ export class BlocksController {
 
   @Get()
   @UseInterceptors(BlockResponseInterceptor)
-  async findAllBlocks() {
-    return this.blocksService.findAll();
+  async findAllBlocks(
+    @Query('offset') offset: string = '0',
+    @Query('limit') limit: string = '10',
+  ) {
+    return this.blocksService.findAll({
+      offset: +offset,
+      limit: +limit,
+    });
   }
 
   @Get(':hash')
