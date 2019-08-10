@@ -11,17 +11,17 @@ export class Header {
   @IsString()
   parentHash: string;
   @IsString()
-  transactionsRoot: string;
-  @IsString()
-  proposalsHash: string;
-  @IsString()
-  witnessesRoot: string;
-  @IsString()
-  unclesHash: string;
-  @IsString()
-  unclesCount: string;
-  @IsString()
-  dao: string;
+  // transactionsRoot: string;
+  // @IsString()
+  // proposalsHash: string;
+  // @IsString()
+  // witnessesRoot: string;
+  // @IsString()
+  // unclesHash: string;
+  // @IsString()
+  // unclesCount: string;
+  // @IsString()
+  // // dao: string;
   @IsString()
   difficulty: string;
   @IsString()
@@ -34,7 +34,7 @@ export class Header {
   timestamp: string;
   @IsString()
   version: string;
-  seal: Seal;
+  // seal: Seal;
 }
 
 export class CreateBlockDto {
