@@ -1,9 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Block } from './interface/block.interface';
 import { core } from '../core';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, MoreThanOrEqual } from 'typeorm';
 import { BlockEntity } from './entities/block.entity';
+import { BlockForkException } from '../common/exceptions/block-fork.exception';
 
 @Injectable()
 export class BlocksService {
@@ -41,7 +42,7 @@ export class BlocksService {
   }
 
   async findByHash(hash: string) {
-    return await this.blockRepo.findOne({ hash });
+    return await this.blockRepo.findOne(hash);
   }
 
   private async syncBlock() {
@@ -63,10 +64,6 @@ export class BlocksService {
           return '-1';
         }),
     ]);
-    Logger.log(
-      `tip: ${tipBlockNumber} => synced: ${syncedBlockNumber}`,
-      'Block Service',
-    );
     if (+tipBlockNumber > +syncedBlockNumber) {
       if (+tipBlockNumber - +syncedBlockNumber > 10) {
         this.syncBlocks(
@@ -77,6 +74,18 @@ export class BlocksService {
         const newBlock = await core.rpc.getBlockByNumber(
           `${+syncedBlockNumber + 1}`,
         );
+        if (newBlock.header.number !== '1') {
+          const prevBlock = await this.blockRepo.findOne(
+            newBlock.header.parentHash,
+          );
+          if (prevBlock.number + 1 !== +newBlock.header.number) {
+            this.removeBlocksSince(prevBlock.number - 10);
+            throw new BlockForkException(
+              +newBlock.header.number,
+              newBlock.header.hash,
+            );
+          }
+        }
         const savedBlock = await this.createBlock(
           this.transformBlock(newBlock),
         );
@@ -100,9 +109,31 @@ export class BlocksService {
       return core.rpc.getBlockByNumber(`${+start + idx}`);
     });
     const blocks = await Promise.all(list).then(bs => bs.filter(b => b));
+    blocks.forEach(async (block, idx) => {
+      if (idx === 0) {
+        if (block.header.number !== '0') {
+          const prevBlock = await this.blockRepo.findOne(
+            block.header.parentHash,
+          );
+          if (prevBlock.number + 1 !== +block.header.number) {
+            this.removeBlocksSince(prevBlock.number - 100);
+            throw new BlockForkException(+block.header.hash, block.header.hash);
+          }
+        }
+      } else {
+        if (block.header.parentHash !== blocks[idx - 1].header.hash) {
+          throw new BlockForkException(+block.header.hash, block.header.hash);
+        }
+      }
+    });
     const savedBlocks = await this.createBlocks(
       blocks.map(block => this.transformBlock(block)),
     );
     this.isSyncingBlocks = false;
+  }
+
+  async removeBlocksSince(number: number) {
+    await this.blockRepo.delete({ number: MoreThanOrEqual(number) });
+    return { deleted: true };
   }
 }
