@@ -6,12 +6,13 @@ import {
   Param,
   Query,
   UseInterceptors,
+  Delete,
 } from '@nestjs/common';
 import { BlocksService } from './blocks.service';
 import { core } from '../core';
 import { BlockResponseInterceptor } from '../common/interceptors/blocks-response.interceptor';
 
-@Controller('blocks')
+@Controller('api/blocks')
 export class BlocksController {
   constructor(private readonly blocksService: BlocksService) {}
 
@@ -46,5 +47,9 @@ export class BlocksController {
     );
 
     return savedBlocks;
+  }
+  @Delete()
+  async remoteBlocksSince(@Body('since') since: string) {
+    return this.blocksService.removeBlocksSince(+since);
   }
 }
