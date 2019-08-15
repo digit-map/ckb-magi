@@ -8,7 +8,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { BlocksService } from './blocks.service';
-import { CreateBlockDto } from './dto/create-block.dto';
 import { core } from '../core';
 import { BlockResponseInterceptor } from '../common/interceptors/blocks-response.interceptor';
 
@@ -42,7 +41,9 @@ export class BlocksController {
       return core.rpc.getBlockByNumber(start + idx);
     });
     const blocks = await Promise.all(list).then(bs => bs.filter(b => b));
-    const savedBlocks = await this.blocksService.createBlocks(blocks);
+    const savedBlocks = await this.blocksService.createBlocks(
+      blocks.map(block => this.blocksService.transformBlock(block)),
+    );
 
     return savedBlocks;
   }

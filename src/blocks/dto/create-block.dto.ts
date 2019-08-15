@@ -11,17 +11,6 @@ export class Header {
   @IsString()
   parentHash: string;
   @IsString()
-  // transactionsRoot: string;
-  // @IsString()
-  // proposalsHash: string;
-  // @IsString()
-  // witnessesRoot: string;
-  // @IsString()
-  // unclesHash: string;
-  // @IsString()
-  // unclesCount: string;
-  // @IsString()
-  // // dao: string;
   @IsString()
   difficulty: string;
   @IsString()
@@ -42,6 +31,4 @@ export class CreateBlockDto {
   @IsNotEmpty()
   @Type(() => Header)
   header: Header;
-  // uncles: []
-  // transactions: []
 }
