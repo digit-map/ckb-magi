@@ -1,6 +1,6 @@
 export interface Block {
   hash: string;
-  number: string;
+  number: number;
   difficulty: string;
   timestamp: string;
   parentHash: string;

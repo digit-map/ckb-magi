@@ -1,14 +1,17 @@
-import { CreateBlockDto } from './dto/create-block.dto';
-import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { Injectable, Logger } from '@nestjs/common';
 import { Block } from './interface/block.interface';
 import { core } from '../core';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { BlockEntity } from './entities/block.entity';
 
 @Injectable()
 export class BlocksService {
   private isSyncingBlocks = false;
-  constructor(@InjectModel('Block') private readonly blockModel: Model<Block>) {
+  constructor(
+    @InjectRepository(BlockEntity)
+    private readonly blockRepo: Repository<BlockEntity>,
+  ) {
     setInterval(() => {
       this.syncBlock().then(num => {
         if (num !== undefined) {
@@ -18,26 +21,27 @@ export class BlocksService {
     }, 1000);
   }
 
-  async createBlock(createBlockDto: CreateBlockDto) {
-    const createdBlock = new this.blockModel(createBlockDto.header);
-    return await createdBlock.save();
+  async createBlock(blockData: Block) {
+    const block = await this.blockRepo.save(blockData);
+    return block;
   }
 
-  async createBlocks(blocks: CreateBlockDto[]) {
-    return await this.blockModel.insertMany(blocks.map(block => block.header));
+  async createBlocks(blocks: Block[]) {
+    return await this.blockRepo.save(blocks);
   }
 
   async findAll({ offset = 0, limit = 10 } = { offset: 0, limit: 10 }) {
-    return await this.blockModel
-      .find()
-      .sort({ number: -1 })
-      .skip(offset)
-      .limit(limit)
-      .exec();
+    return await this.blockRepo.find({
+      order: {
+        number: 'DESC',
+      },
+      skip: offset,
+      take: limit,
+    });
   }
 
   async findByHash(hash: string) {
-    return await this.blockModel.find({ hash }).exec();
+    return await this.blockRepo.findOne({ hash });
   }
 
   private async syncBlock() {
@@ -45,10 +49,13 @@ export class BlocksService {
 
     const [tipBlockNumber, syncedBlockNumber] = await Promise.all([
       core.rpc.getTipBlockNumber(),
-      this.blockModel
-        .find()
-        .sort({ number: -1 })
-        .limit(1)
+      this.blockRepo
+        .find({
+          order: {
+            number: 'DESC',
+          },
+          take: 1,
+        })
         .then(blocks => {
           if (blocks.length) {
             return blocks[0].number;
@@ -56,6 +63,10 @@ export class BlocksService {
           return '-1';
         }),
     ]);
+    Logger.log(
+      `tip: ${tipBlockNumber} => synced: ${syncedBlockNumber}`,
+      'Block Service',
+    );
     if (+tipBlockNumber > +syncedBlockNumber) {
       if (+tipBlockNumber - +syncedBlockNumber > 10) {
         this.syncBlocks(
@@ -66,11 +77,21 @@ export class BlocksService {
         const newBlock = await core.rpc.getBlockByNumber(
           `${+syncedBlockNumber + 1}`,
         );
-        const savedBlock = await this.createBlock(newBlock);
+        const savedBlock = await this.createBlock(
+          this.transformBlock(newBlock),
+        );
         return savedBlock.number;
       }
     }
   }
+
+  public transformBlock = block => ({
+    hash: block.header.hash,
+    number: +block.header.number,
+    parentHash: block.header.parentHash,
+    difficulty: block.header.difficulty,
+    timestamp: block.header.timestamp,
+  });
 
   private async syncBlocks(start: string = '0', end: string = '0') {
     if (this.isSyncingBlocks) return;
@@ -79,7 +100,9 @@ export class BlocksService {
       return core.rpc.getBlockByNumber(`${+start + idx}`);
     });
     const blocks = await Promise.all(list).then(bs => bs.filter(b => b));
-    const savedBlocks = await this.createBlocks(blocks);
+    const savedBlocks = await this.createBlocks(
+      blocks.map(block => this.transformBlock(block)),
+    );
     this.isSyncingBlocks = false;
   }
 }
