@@ -363,9 +363,9 @@
   dependencies:
     optional "0.1.4"
 
-"@nestjs/typeorm@^6.1.3":
+"@nestjs/typeorm@6.1.3":
   version "6.1.3"
-  resolved "https://registry.npmjs.org/@nestjs/typeorm/-/typeorm-6.1.3.tgz#1b19db4240bfc44c75e2f5840cf103fcf1468890"
+  resolved "https://registry.yarnpkg.com/@nestjs/typeorm/-/typeorm-6.1.3.tgz#1b19db4240bfc44c75e2f5840cf103fcf1468890"
   integrity sha512-860tNwms0d/pnuZNEBZCFl5FjzCGG67V8TYuPIVu66jFK/Hmq2WH/GxiC8L77rWPn/o2O5LSe51lgO95GPysGw==
   dependencies:
     uuid "3.3.2"
@@ -3894,9 +3894,9 @@ pg-types@^2.1.0:
     postgres-date "~1.0.4"
     postgres-interval "^1.1.0"
 
-pg@^7.12.1:
+pg@7.12.1:
   version "7.12.1"
-  resolved "https://registry.npmjs.org/pg/-/pg-7.12.1.tgz#880636d46d2efbe0968e64e9fe0eeece8ef72a7e"
+  resolved "https://registry.yarnpkg.com/pg/-/pg-7.12.1.tgz#880636d46d2efbe0968e64e9fe0eeece8ef72a7e"
   integrity sha512-l1UuyfEvoswYfcUe6k+JaxiN+5vkOgYcVSbSuw3FvdLqDbaoa2RJo1zfJKfPsSYPFVERd4GHvX3s2PjG1asSDA==
   dependencies:
     buffer-writer "2.0.0"
@@ -4979,9 +4979,9 @@ typedarray@^0.0.6:
   resolved "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typeorm@^0.2.18:
+typeorm@0.2.18:
   version "0.2.18"
-  resolved "https://registry.npmjs.org/typeorm/-/typeorm-0.2.18.tgz#8ae1d21104117724af41ddc11035c40a705e1de8"
+  resolved "https://registry.yarnpkg.com/typeorm/-/typeorm-0.2.18.tgz#8ae1d21104117724af41ddc11035c40a705e1de8"
   integrity sha512-S553GwtG5ab268+VmaLCN7gKDqFPIzUw0eGMTobJ9yr0Np62Ojfx8j1Oa9bIeh5p7Pz1/kmGabAHoP1MYK05pA==
   dependencies:
     app-root-path "^2.0.1"
